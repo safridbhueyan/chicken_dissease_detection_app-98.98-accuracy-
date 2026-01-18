@@ -1,7 +1,8 @@
+import 'package:chicken_dissease/dissease_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'controller.dart'; // Ensure this points to your DiseaseProvider file
+import 'controller.dart';
 
 class MyhomeScreen extends StatelessWidget {
   const MyhomeScreen({super.key});
@@ -17,8 +18,12 @@ class MyhomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
-        foregroundColor: Colors.black87, // Modern clean look
+        foregroundColor: Colors.black87,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(color: Colors.grey.shade200, height: 1.0),
+        ),
       ),
       body: Consumer<DiseaseProvider>(
         builder: (context, provider, child) {
@@ -27,9 +32,9 @@ class MyhomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // --- Image Display Card ---
+                // --- 1. Image Display Card ---
                 Container(
-                  height: 320,
+                  height: 300,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
@@ -47,7 +52,7 @@ class MyhomeScreen extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.add_photo_alternate_rounded,
-                              size: 60,
+                              size: 50,
                               color: Colors.grey[300],
                             ),
                             const SizedBox(height: 12),
@@ -69,11 +74,14 @@ class MyhomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 32),
 
-                // --- Result Section ---
+                // --- 2. Logic: Loading / Result / Instructions ---
                 if (provider.loading)
                   const Column(
                     children: [
-                      CircularProgressIndicator(strokeWidth: 3),
+                      CircularProgressIndicator(
+                        strokeWidth: 3,
+                        color: Colors.teal,
+                      ),
                       SizedBox(height: 16),
                       Text(
                         "Analyzing...",
@@ -83,7 +91,18 @@ class MyhomeScreen extends StatelessWidget {
                   )
                 else if (provider.outputs != null &&
                     provider.outputs!.isNotEmpty)
-                  _buildResultCard(provider.outputs![0])
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Result Header Card
+                      _buildResultCard(provider.outputs![0]),
+
+                      const SizedBox(height: 24),
+
+                      // Detailed Information Sections
+                      _buildDiseaseInfo(provider.outputs![0]['label']),
+                    ],
+                  )
                 else
                   const Center(
                     child: Text(
@@ -95,7 +114,7 @@ class MyhomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // --- Action Buttons ---
+                // --- 3. Action Buttons ---
                 Row(
                   children: [
                     Expanded(
@@ -125,13 +144,13 @@ class MyhomeScreen extends StatelessWidget {
     );
   }
 
-  // --- Helper Widget: Beautiful Result Card ---
+  // --- Helper: Beautiful Result Card ---
   Widget _buildResultCard(Map output) {
     String rawLabel = output['label'].toString();
     String formattedLabel = formatLabel(rawLabel);
     double confidence = (output['confidence'] as double) * 100;
 
-    // Determine color based on "Healthy" vs Disease
+    // Determine color based on "Healthy"
     bool isHealthy =
         formattedLabel.toLowerCase().contains("healthy") ||
         formattedLabel.contains("সুস্থ");
@@ -140,36 +159,43 @@ class MyhomeScreen extends StatelessWidget {
     Color bgColor = isHealthy ? Colors.green.shade50 : Colors.red.shade50;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: themeColor.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: themeColor.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: themeColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Text(
-            formattedLabel, // This shows the Bangla Name
+            formattedLabel,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 22, // Larger font for Bangla readability
+              fontSize: 24,
               fontWeight: FontWeight.bold,
               color: themeColor,
-              height: 1.3,
+              height: 1.2,
             ),
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.white.withOpacity(0.7),
+              borderRadius: BorderRadius.circular(30),
             ),
             child: Text(
               "Confidence: ${confidence.toStringAsFixed(1)}%",
               style: TextStyle(
                 fontSize: 14,
-                color: themeColor.withOpacity(0.8),
+                color: themeColor.withOpacity(0.9),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -179,7 +205,100 @@ class MyhomeScreen extends StatelessWidget {
     );
   }
 
-  // --- Helper Widget: Custom Button ---
+  // --- Helper: Disease Info Section ---
+  Widget _buildDiseaseInfo(String rawLabel) {
+    String id = _getCleanId(rawLabel);
+
+    Map<String, String>? data = diseaseInfo[id];
+
+    // If no data or healthy, hide this section
+    if (data == null) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        _buildInfoTile(
+          title: "লক্ষণ (Symptoms)",
+          content: data['symptoms']!,
+          icon: Icons.warning_amber_rounded,
+          accentColor: Colors.orange,
+        ),
+        _buildInfoTile(
+          title: "প্রতিরোধ (Prevention)",
+          content: data['prevention']!,
+          icon: Icons.shield_outlined,
+          accentColor: Colors.blue,
+        ),
+        _buildInfoTile(
+          title: "প্রাথমিক চিকিৎসা (Treatment)",
+          content: data['treatment']!,
+          icon: Icons.medical_services_outlined,
+          accentColor: Colors.green,
+        ),
+      ],
+    );
+  }
+
+  // --- Helper: Single Info Tile ---
+  Widget _buildInfoTile({
+    required String title,
+    required String content,
+    required IconData icon,
+    required Color accentColor,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(left: BorderSide(color: accentColor, width: 6)),
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, color: accentColor, size: 22),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: accentColor.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                content,
+                style: const TextStyle(
+                  fontSize: 15,
+                  height: 1.6, // Better readability for Bangla
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- Helper: Action Button ---
   Widget _buildActionButton({
     required IconData icon,
     required String label,
@@ -195,38 +314,51 @@ class MyhomeScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
         elevation: 2,
+        shadowColor: color.withOpacity(0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
-}
 
-// --- The Bangla Label Logic ---
-String formatLabel(String label) {
-  // Remove numbers and extra spaces first
-  String clean = label.replaceAll(RegExp(r'[0-9]'), '').trim().toLowerCase();
+  String _getCleanId(String label) {
+    // 1. Remove numbers and spaces (e.g., "3 pcrcocci" -> "pcrcocci")
+    String clean = label.replaceAll(RegExp(r'[0-9]'), '').trim().toLowerCase();
 
-  switch (clean) {
-    case 'cocci':
-    case 'pcrcocci':
-      return 'রক্ত আমাশয় (Coccidiosis)';
+    // 2. Map your specific labels to the database keys
+    if (clean.contains('cocci')) {
+      return 'cocci'; // Covers "cocci" and "pcrcocci"
+    }
+    if (clean.contains('ncd')) return 'ncd'; // Covers "ncd" and "pcrncd"
+    if (clean.contains('salmo')) {
+      return 'salmo'; // Covers "salmo" and "pcrsalmo"
+    }
+    if (clean.contains('healthy')) {
+      return 'healthy'; // Covers "healthy" and "pcrhealthy"
+    }
 
-    case 'healthy':
-    case 'pcrhealthy':
-      return 'সুস্থ মুরগি (Healthy)';
+    return clean;
+  }
 
-    case 'ncd':
-    case 'pcrncd':
-      return 'রানীক্ষেত (Newcastle Disease)';
-
-    case 'salmo':
-    case 'pcrsalmo':
-      return 'সালমোনেলা (Salmonella)';
-
-    default:
-      // Fallback: Just Capitalize the first letter if unknown
-      return clean.isNotEmpty
-          ? '${clean[0].toUpperCase()}${clean.substring(1)}'
-          : clean;
+  // --- LOGIC: Format Label for Header ---
+  String formatLabel(String label) {
+    String clean = label.replaceAll(RegExp(r'[0-9]'), '').trim().toLowerCase();
+    switch (clean) {
+      case 'cocci':
+      case 'pcrcocci':
+        return 'রক্ত আমাশয় (Coccidiosis)';
+      case 'healthy':
+      case 'pcrhealthy':
+        return 'সুস্থ মুরগি (Healthy)';
+      case 'ncd':
+      case 'pcrncd':
+        return 'রানীক্ষেত (Newcastle Disease)';
+      case 'salmo':
+      case 'pcrsalmo':
+        return 'সালমোনেলা (Salmonella)';
+      default:
+        return clean.isNotEmpty
+            ? '${clean[0].toUpperCase()}${clean.substring(1)}'
+            : clean;
+    }
   }
 }
