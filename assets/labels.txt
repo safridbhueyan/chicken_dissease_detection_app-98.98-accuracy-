@@ -1,0 +1,8 @@
+0 cocci
+1 healthy
+2 ncd
+3 pcrcocci
+4 pcrhealthy
+5 pcrncd
+6 pcrsalmo
+7 salmo
