@@ -1,5 +1,5 @@
-import 'package:chicken_dissease/controller.dart';
-import 'package:chicken_dissease/myHome_screen.dart';
+import 'package:murgi_care/controller.dart';
+import 'package:murgi_care/myHome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

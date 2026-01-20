@@ -1,4 +1,4 @@
-package com.futuredesh.chicken_dissease
+package com.futuredesh.murgi_care
 
 import io.flutter.embedding.android.FlutterActivity
 

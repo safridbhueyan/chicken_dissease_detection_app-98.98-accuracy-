@@ -7,7 +7,3 @@
 6 pcrsalmo
 7 salmo
 8 others
-9 crd
-10 fowlpox
-11 bumblefoot
-12 coryza

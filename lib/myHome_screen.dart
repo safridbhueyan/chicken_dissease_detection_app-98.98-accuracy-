@@ -1,4 +1,6 @@
-import 'package:chicken_dissease/dissease_info.dart';
+// ignore_for_file: deprecated_member_use
+
+import 'package:murgi_care/dissease_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,8 +24,10 @@ class MyhomeScreen extends StatelessWidget {
         ),
         content: Text(
           isEnglish
-              ? "The model predictions may not be 100% accurate. Please consult a professional veterinarian for a final diagnosis."
-              : "মডেলের ফলাফল ১০০% নির্ভুল নাও হতে পারে। মুরগির সঠিক রোগ নির্ণয় এবং চিকিৎসার জন্য অবশ্যই একজন অভিজ্ঞ ভেটেরিনারি চিকিৎসকের পরামর্শ নিন।",
+              ? "1. The model predictions may not be 100% accurate. Always consult a veterinarian for final diagnosis.\n\n"
+                    "2. This app is strictly for Chicken droppings. Scanning any other animal's poop will result in invalid and inaccurate outcomes."
+              : "১. মডেলের ফলাফল ১০০% নির্ভুল নাও হতে পারে। মুরগির সঠিক রোগ নির্ণয় এবং চিকিৎসার জন্য অবশ্যই ভেটেরিনারি চিকিৎসকের পরামর্শ নিন।\n\n"
+                    "২. এই অ্যাপটি শুধুমাত্র মুরগির মলের জন্য তৈরি। অন্য কোনো প্রাণীর মল স্ক্যান করলে ফলাফল ভুল এবং অগ্রহণযোগ্য হবে।",
           style: const TextStyle(fontSize: 16),
         ),
         actions: [
@@ -488,32 +492,44 @@ class MyhomeScreen extends StatelessWidget {
   }
 
   String _getCleanId(String label) {
+    debugPrint(label);
     String clean = label.replaceAll(RegExp(r'[0-9]'), '').trim().toLowerCase();
+
     if (clean.contains('others')) return 'others';
     if (clean.contains('cocci')) return 'cocci';
     if (clean.contains('ncd')) return 'ncd';
     if (clean.contains('salmo')) return 'salmo';
     if (clean.contains('healthy')) return 'healthy';
+    if (clean.contains('crd')) return 'crd';
+    if (clean.contains('fowlpox')) return 'fowlpox';
+    if (clean.contains('bumblefoot')) return 'bumblefoot';
+    if (clean.contains('coryza')) return 'coryza';
+
     return clean;
   }
 
   String formatLabel(String label, bool isEnglish) {
-    String clean = label.replaceAll(RegExp(r'[0-9]'), '').trim().toLowerCase();
+    String clean = _getCleanId(label);
+    debugPrint(clean);
     switch (clean) {
       case 'others':
-        return isEnglish ? 'Invalid Image' : 'সঠিক ছবি নয়';
+        return isEnglish ? 'Invalid Image' : 'সঠিক ছবি নয়';
       case 'cocci':
-      case 'pcrcocci':
-        return isEnglish ? 'Coccidiosis' : 'রক্ত আমাশয়';
+        return isEnglish ? 'Coccidiosis' : 'রক্ত আমাশয়';
       case 'healthy':
-      case 'pcrhealthy':
         return isEnglish ? 'Healthy' : 'সুস্থ মুরগি';
       case 'ncd':
-      case 'pcrncd':
         return isEnglish ? 'Newcastle Disease' : 'রানীক্ষেত';
       case 'salmo':
-      case 'pcrsalmo':
         return isEnglish ? 'Salmonella' : 'সালমোনেলা';
+      case 'crd':
+        return isEnglish ? 'CRD' : 'সিআরডি (শ্বাসকষ্ট)';
+      case 'fowlpox':
+        return isEnglish ? 'Fowl Pox' : 'বসন্ত (পক্স)';
+      case 'bumblefoot':
+        return isEnglish ? 'Bumblefoot' : 'বাম্বলফুট';
+      case 'coryza':
+        return isEnglish ? 'Coryza' : 'কোরাইজা (সর্দি)';
       default:
         return clean.isNotEmpty
             ? '${clean[0].toUpperCase()}${clean.substring(1)}'
