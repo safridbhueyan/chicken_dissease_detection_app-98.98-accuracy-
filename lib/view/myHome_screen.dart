@@ -1,77 +1,114 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:murgi_care/dissease_info.dart';
+import 'package:murgi_care/model/dissease_info.dart';
+import 'package:murgi_care/view/widgets/custom_widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'controller.dart';
+import '../controller/controller.dart';
 
 class MyhomeScreen extends StatelessWidget {
   const MyhomeScreen({super.key});
 
-  // --- Helper: Show Accuracy Disclaimer ---
-  void _showDisclaimer(BuildContext context, bool isEnglish) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-            const SizedBox(width: 10),
-            Text(isEnglish ? "Disclaimer" : "সতর্কবার্তা"),
-          ],
-        ),
-        content: Text(
-          isEnglish
-              ? "1. The model predictions may not be 100% accurate. Always consult a veterinarian for final diagnosis.\n\n"
-                    "2. This app is strictly for Chicken droppings. Scanning any other animal's poop will result in invalid and inaccurate outcomes."
-              : "১. মডেলের ফলাফল ১০০% নির্ভুল নাও হতে পারে। মুরগির সঠিক রোগ নির্ণয় এবং চিকিৎসার জন্য অবশ্যই ভেটেরিনারি চিকিৎসকের পরামর্শ নিন।\n\n"
-                    "২. এই অ্যাপটি শুধুমাত্র মুরগির মলের জন্য তৈরি। অন্য কোনো প্রাণীর মল স্ক্যান করলে ফলাফল ভুল এবং অগ্রহণযোগ্য হবে।",
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isEnglish ? "OK" : "ঠিক আছে"),
-          ),
-        ],
-      ),
-    );
-  }
-
   // --- Helper: Show About Us ---
-  void _showAboutUs(BuildContext context, bool isEnglish) {
+  void showAboutUs(BuildContext context, bool isEnglish) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Center(child: Text(isEnglish ? "About Us" : "আমাদের সম্পর্কে")),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.teal,
-              backgroundImage: AssetImage("assets/techlogo.png"),
-            ),
-            const SizedBox(height: 15),
-            Text(
-              isEnglish ? "Developed By" : "ডেভেলপ করেছে",
-              style: const TextStyle(color: Colors.black),
-            ),
-            const Text(
-              "Futuredesh Tech Team",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(isEnglish ? "Close" : "বন্ধ করুন"),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // --- Header with Gradient ---
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.teal, Colors.indigo],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.white,
+                        backgroundImage: AssetImage("assets/techlogo.png"),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      isEnglish ? "About Us" : "আমাদের সম্পর্কে",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // --- Content ---
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    Text(
+                      isEnglish ? "Developed By" : "ডেভেলপ করেছে",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Futuredesh Tech Team",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Action Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: Text(
+                          isEnglish ? "Close" : "বন্ধ করুন",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -157,8 +194,8 @@ class MyhomeScreen extends StatelessWidget {
                             const SizedBox(height: 12),
                             Text(
                               provider.isEnglish
-                                  ? "No Image Selected"
-                                  : "কোন ছবি নির্বাচন করা হয়নি",
+                                  ? "No chicken image is selected"
+                                  : "মুরগির কোনো ছবি নির্বাচন করা হয়নি",
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[400],
@@ -195,10 +232,7 @@ class MyhomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Fixed: Passing Map data from provider
-                      _buildResultCard(
-                        provider.outputs![0],
-                        provider.isEnglish,
-                      ),
+                      buildResultCard(provider.outputs![0], provider.isEnglish),
                       const SizedBox(height: 24),
                       // Fixed: Accessing Map key ['label'] instead of .label
                       _buildDiseaseInfo(
@@ -221,23 +255,28 @@ class MyhomeScreen extends StatelessWidget {
                 const SizedBox(height: 40),
 
                 // --- 3. Primary Action Buttons ---
+                // --- 3. Primary Action Buttons ---
                 Row(
                   children: [
                     Expanded(
-                      child: _buildActionButton(
+                      child: CustomWidgets.buildActionButton(
                         icon: Icons.camera_alt_rounded,
                         label: provider.isEnglish ? "Camera" : "ক্যামেরা",
                         color: Colors.teal,
-                        onTap: () => provider.pickImage(ImageSource.camera),
+                        // Pass 'context' here for the custom CameraScanScreen navigation
+                        onTap: () =>
+                            provider.pickImage(ImageSource.camera, context),
                       ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      child: _buildActionButton(
+                      child: CustomWidgets.buildActionButton(
                         icon: Icons.photo_library_rounded,
                         label: provider.isEnglish ? "Gallery" : "গ্যালারি",
                         color: Colors.indigo,
-                        onTap: () => provider.pickImage(ImageSource.gallery),
+                        // Pass 'context' here as well
+                        onTap: () =>
+                            provider.pickImage(ImageSource.gallery, context),
                       ),
                     ),
                   ],
@@ -254,13 +293,16 @@ class MyhomeScreen extends StatelessWidget {
                       icon: Icons.report_problem_outlined,
                       label: provider.isEnglish ? "Caution" : "সতর্কতা",
                       color: Colors.orange,
-                      onTap: () => _showDisclaimer(context, provider.isEnglish),
+                      onTap: () => CustomWidgets.showDisclaimer(
+                        context,
+                        provider.isEnglish,
+                      ),
                     ),
                     _buildFooterItem(
                       icon: Icons.info_outline,
                       label: provider.isEnglish ? "About" : "তথ্য",
                       color: Colors.indigo,
-                      onTap: () => _showAboutUs(context, provider.isEnglish),
+                      onTap: () => showAboutUs(context, provider.isEnglish),
                     ),
                   ],
                 ),
@@ -274,7 +316,7 @@ class MyhomeScreen extends StatelessWidget {
   }
 
   // FIXED: Handles dynamic Map input correctly
-  Widget _buildResultCard(dynamic output, bool isEnglish) {
+  Widget buildResultCard(dynamic output, bool isEnglish) {
     String rawLabel = output['label'].toString();
     String cleanId = _getCleanId(rawLabel);
     String formattedLabel = formatLabel(rawLabel, isEnglish);
@@ -283,7 +325,7 @@ class MyhomeScreen extends StatelessWidget {
     double confidence = (output['confidence'] as double) * 100;
 
     if (cleanId == 'others') {
-      return _buildInvalidCard(isEnglish);
+      return CustomWidgets.buildInvalidCard(isEnglish);
     }
 
     bool isHealthy = cleanId == 'healthy';
@@ -321,43 +363,6 @@ class MyhomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInvalidCard(bool isEnglish) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber),
-      ),
-      child: Column(
-        children: [
-          const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.amber,
-            size: 40,
-          ),
-          const SizedBox(height: 10),
-          Text(
-            isEnglish ? "Invalid Image" : "সঠিক ছবি তুলুন",
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.brown,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            isEnglish
-                ? "This doesn't look like chicken droppings. Please provide a valid image."
-                : "এটি মুরগির মলের ছবি বলে মনে হচ্ছে না। দয়া করে সঠিক ছবি দিন।",
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.brown),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDiseaseInfo(String rawLabel, bool isEnglish) {
     String id = _getCleanId(rawLabel);
 
@@ -372,7 +377,7 @@ class MyhomeScreen extends StatelessWidget {
 
     return Column(
       children: [
-        _buildInfoTile(
+        CustomWidgets.buildInfoTile(
           title: isEnglish ? "Symptoms" : "লক্ষণ",
           content: isEnglish
               ? (data['symptoms_en'] ?? "")
@@ -380,7 +385,7 @@ class MyhomeScreen extends StatelessWidget {
           icon: Icons.warning_amber_rounded,
           accentColor: Colors.orange,
         ),
-        _buildInfoTile(
+        CustomWidgets.buildInfoTile(
           title: isEnglish ? "Prevention" : "প্রতিরোধ",
           content: isEnglish
               ? (data['prevention_en'] ?? "")
@@ -388,7 +393,7 @@ class MyhomeScreen extends StatelessWidget {
           icon: Icons.shield_outlined,
           accentColor: Colors.blue,
         ),
-        _buildInfoTile(
+        CustomWidgets.buildInfoTile(
           title: isEnglish ? "Treatment" : "প্রাথমিক চিকিৎসা",
           content: isEnglish
               ? (data['treatment_en'] ?? "")
@@ -397,84 +402,6 @@ class MyhomeScreen extends StatelessWidget {
           accentColor: Colors.green,
         ),
       ],
-    );
-  }
-
-  Widget _buildInfoTile({
-    required String title,
-    required String content,
-    required IconData icon,
-    required Color accentColor,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: accentColor, width: 6)),
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: accentColor, size: 22),
-                  const SizedBox(width: 10),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: accentColor.withOpacity(0.9),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                content,
-                style: const TextStyle(
-                  fontSize: 15,
-                  height: 1.6,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 22),
-      label: Text(label, style: const TextStyle(fontSize: 16)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
     );
   }
 

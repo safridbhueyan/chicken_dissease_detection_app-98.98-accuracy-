@@ -3,8 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:murgi_care/view/camera_screen.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
+import 'package:camera/camera.dart';
+import 'package:image_cropper/image_cropper.dart'; // Added this
 
 class DiseaseProvider extends ChangeNotifier {
   File? _image;
@@ -28,7 +31,6 @@ class DiseaseProvider extends ChangeNotifier {
       _interpreter = await Interpreter.fromAsset('assets/model.tflite');
       final labelData = await rootBundle.loadString('assets/labels.txt');
       _labels = labelData.split('\n').where((s) => s.isNotEmpty).toList();
-      debugPrint("Model and Labels loaded successfully");
     } catch (e) {
       debugPrint("Error loading model: $e");
     }
@@ -46,33 +48,79 @@ class DiseaseProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: source);
-    if (pickedFile == null) return;
+  // --- Main Pick Image Logic ---
+  Future<void> pickImage(ImageSource source, BuildContext context) async {
+    File? initialFile;
 
-    _image = File(pickedFile.path);
+    if (source == ImageSource.camera) {
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) return;
+
+      initialFile = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              CameraScanScreen(cameras: cameras, isEnglish: _isEnglish),
+        ),
+      );
+    } else {
+      final picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(source: source);
+      if (pickedFile != null) initialFile = File(pickedFile.path);
+    }
+
+    if (initialFile == null) return;
+
+    // --- APPLY CROP TO BOTH SOURCES ---
+    final croppedFile = await _cropImage(initialFile.path);
+    if (croppedFile == null) return;
+
+    _image = File(croppedFile.path);
     _loading = true;
     notifyListeners();
 
     await _processImage(_image!);
   }
 
+  // --- Unified Cropping Helper ---
+  Future<CroppedFile?> _cropImage(String path) async {
+    return await ImageCropper().cropImage(
+      sourcePath: path,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: _isEnglish ? 'Crop Sample' : 'ক্রপ করুন',
+          toolbarColor: Colors.teal,
+          toolbarWidgetColor: Colors.white,
+          // Add the presets here if they aren't working at the top level
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.original,
+          ],
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false, // This allows the draggable manual crop
+        ),
+        IOSUiSettings(
+          title: _isEnglish ? 'Crop Sample' : 'ক্রপ করুন',
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.original,
+          ],
+        ),
+      ],
+    );
+  }
+
   Future<void> _processImage(File file) async {
     try {
       if (_interpreter == null) {
-        // Try loading it again if it failed initially
         await _loadModel();
-        if (_interpreter == null) {
+        if (_interpreter == null)
           throw Exception("Interpreter not initialized");
-        }
       }
 
       final imageData = await file.readAsBytes();
       img.Image? originalImage = img.decodeImage(imageData);
-      if (originalImage == null) {
-        throw Exception("Failed to decode image");
-      }
+      if (originalImage == null) throw Exception("Failed to decode image");
 
       img.Image resizedImage = img.copyResize(
         originalImage,
@@ -96,7 +144,6 @@ class DiseaseProvider extends ChangeNotifier {
         1 * _labels!.length,
         0.0,
       ).reshape([1, _labels!.length]);
-
       _interpreter!.run(input.reshape([1, 224, 224, 3]), output);
 
       List<double> probabilities = List<double>.from(output[0]);
