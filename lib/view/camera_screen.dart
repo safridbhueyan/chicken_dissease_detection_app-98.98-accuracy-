@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -84,7 +86,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
                 Positioned.fill(
                   child: ColorFiltered(
                     colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.7), // Darkness level
+                      Colors.black.withOpacity(0.7),
                       BlendMode.srcOut,
                     ),
                     child: Stack(

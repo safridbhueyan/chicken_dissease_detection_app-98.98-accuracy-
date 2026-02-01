@@ -10,109 +10,6 @@ import '../controller/controller.dart';
 class MyhomeScreen extends StatelessWidget {
   const MyhomeScreen({super.key});
 
-  // --- Helper: Show About Us ---
-  void showAboutUs(BuildContext context, bool isEnglish) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // --- Header with Gradient ---
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.teal, Colors.indigo],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const CircleAvatar(
-                        radius: 35,
-                        backgroundColor: Colors.white,
-                        backgroundImage: AssetImage("assets/techlogo.png"),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      isEnglish ? "About Us" : "আমাদের সম্পর্কে",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              // --- Content ---
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    Text(
-                      isEnglish ? "Developed By" : "ডেভেলপ করেছে",
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                        letterSpacing: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Futuredesh Tech Team",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Action Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                        child: Text(
-                          isEnglish ? "Close" : "বন্ধ করুন",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -289,7 +186,7 @@ class MyhomeScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildFooterItem(
+                    CustomWidgets.buildFooterItem(
                       icon: Icons.report_problem_outlined,
                       label: provider.isEnglish ? "Caution" : "সতর্কতা",
                       color: Colors.orange,
@@ -298,11 +195,14 @@ class MyhomeScreen extends StatelessWidget {
                         provider.isEnglish,
                       ),
                     ),
-                    _buildFooterItem(
+                    CustomWidgets.buildFooterItem(
                       icon: Icons.info_outline,
                       label: provider.isEnglish ? "About" : "তথ্য",
                       color: Colors.indigo,
-                      onTap: () => showAboutUs(context, provider.isEnglish),
+                      onTap: () => CustomWidgets.showAboutUs(
+                        context,
+                        provider.isEnglish,
+                      ),
                     ),
                   ],
                 ),
@@ -402,35 +302,6 @@ class MyhomeScreen extends StatelessWidget {
           accentColor: Colors.green,
         ),
       ],
-    );
-  }
-
-  Widget _buildFooterItem({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: color,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
