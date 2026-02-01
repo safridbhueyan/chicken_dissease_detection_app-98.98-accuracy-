@@ -7,11 +7,9 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -20,7 +18,6 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // --- FIXED: Correct Kotlin Syntax for .kts files ---
     aaptOptions {
         noCompress("tflite")
         noCompress("lite")
@@ -36,16 +33,16 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.futuredesh.murgi_care"
         
-        // --- FIXED: TFLite requires minSdk 21. We set it explicitly here. ---
-        minSdk = flutter.minSdkVersion
+        // TFLite and Camera plugins work best with minSdk 21+
+        minSdk = flutter.minSdkVersion 
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
-  signingConfigs {
+
+    signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
                 keyAlias = keystoreProperties["keyAlias"] as String
@@ -55,13 +52,24 @@ android {
             }
         }
     }
+
     buildTypes {
         release {
-
+            // Enables R8 shrinking and optimization
+            isMinifyEnabled = true 
+            isShrinkResources = true
+            
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            
+            // Link to the signing config defined above
             signingConfig = signingConfigs.getByName("release")
+
+            // 2026 Android requirement for 16 KB page alignment
+            packaging {
+                jniLibs {
+                    useLegacyPackaging = true
+                }
+            }
         }
     }
 }
