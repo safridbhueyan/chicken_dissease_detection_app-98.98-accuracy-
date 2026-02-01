@@ -1,3 +1,4 @@
+import 'package:appcare_flutter/appcare_flutter.dart';
 import 'package:flutter/material.dart';
 
 class CustomWidgets {
@@ -270,6 +271,26 @@ class CustomWidgets {
                         color: Colors.black87,
                       ),
                     ),
+                    const SizedBox(height: 12),
+
+                    // --- NEW: App Version Display ---
+                    FutureBuilder<AppBaseInfo>(
+                      future: AppCare().getAppBaseInfo(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text(
+                            "v${snapshot.data!.version} (${snapshot.data!.buildNumber})",
+                            style: TextStyle(
+                              color: Colors.grey[500],
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          );
+                        }
+                        return const SizedBox(height: 13); // Placeholder height
+                      },
+                    ),
+
                     const SizedBox(height: 24),
 
                     // Action Button
@@ -328,5 +349,50 @@ class CustomWidgets {
         ),
       ),
     );
+  }
+
+  //app care
+
+  static Future<void> handleAppUpdate(BuildContext context) async {
+    final appCare = AppCare();
+
+    try {
+      // 1. Check for updates
+      final updateInfo = await appCare.checkForUpdate();
+
+      if (updateInfo.updateAvailable) {
+        // 2. Show a custom dialog or use the native flow
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            title: const Text("New Update Available!"),
+            content: Text(
+              "A new version (${updateInfo.remoteVersion}) of MurgiCare is available on the Play Store. Please update for better AI accuracy.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Later"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  // 3. Start the native update flow
+                  appCare.startUpdate();
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                child: const Text("Update Now"),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint("Update check failed: $e");
+    }
   }
 }

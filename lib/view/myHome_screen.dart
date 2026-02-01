@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:murgi_care/model/dissease_info.dart';
 import 'package:murgi_care/view/widgets/custom_widgets.dart';
@@ -12,6 +11,9 @@ class MyhomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CustomWidgets.handleAppUpdate(context);
+    });
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -151,7 +153,6 @@ class MyhomeScreen extends StatelessWidget {
 
                 const SizedBox(height: 40),
 
-                // --- 3. Primary Action Buttons ---
                 // --- 3. Primary Action Buttons ---
                 Row(
                   children: [
