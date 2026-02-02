@@ -49,5 +49,7 @@
     <string>MurgiCare needs access to your camera to scan chicken droppings and identify potential diseases.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Allows you to select photos of poultry or droppings from your library for AI diagnosis.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>This app requires microphone access to monitor device health and audio diagnostic features.</string>
 </dict>
 </plist>
